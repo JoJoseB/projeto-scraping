@@ -5,7 +5,7 @@ from sqlalchemy import create_engine, text, inspect
 import warnings
 from openpyxl import load_workbook
 
-# Configurações do PostgreSQL
+# Configurações para acessar o PostgreSQL 
 POSTGRES_CONFIG = {
     "host": "localhost",
     "database": "dataforce",
@@ -14,9 +14,7 @@ POSTGRES_CONFIG = {
     "port": "5432"
 }
 
-PASTA_BASE = "planilhas_anp"
-IGNORAR_LINHAS = 9
-
+# Conexão com o banco
 def criar_conexao():
     try:
         conn_str = f"postgresql://{POSTGRES_CONFIG['user']}:{POSTGRES_CONFIG['password']}@{POSTGRES_CONFIG['host']}:{POSTGRES_CONFIG['port']}/{POSTGRES_CONFIG['database']}"
@@ -25,8 +23,9 @@ def criar_conexao():
         print(f"Erro na conexão: {e}")
         return None
 
+# Padronizar nomes das colunas
 def padronizar_colunas(df):
-    # Padronizar nomes das colunas
+
     df.columns = (
         df.columns
         .str.strip()
@@ -55,6 +54,7 @@ def atualizar_esquema(engine, df):
                     print(f"Erro ao adicionar coluna {coluna}: {e}")
                     continue
 
+# Fluxo Principal
 def processar_planilhas():
     engine = criar_conexao()
     if not engine:
@@ -71,8 +71,9 @@ def processar_planilhas():
         """))
         conn.commit()
 
+    # Looping pelas planilhas para processar
     for ano in [2022, 2023]:
-        pasta_ano = os.path.join(PASTA_BASE, str(ano))
+        pasta_ano = os.path.join("planilhas_anp", str(ano))
         
         if not os.path.exists(pasta_ano):
             continue
@@ -91,16 +92,15 @@ def processar_planilhas():
                         df = pd.read_excel(
                             xls,
                             sheet_name=sheet_name,
-                            skiprows=IGNORAR_LINHAS,
+                            skiprows=9,
                             dtype=str,
                             engine='openpyxl'
                         )
                         
-                        # Pré-processamento
                         df = df.dropna(how='all')
                         df = padronizar_colunas(df)
                         
-                        # Converter colunas numéricas
+                        # Converter colunas numéricas e padroniza dados
                         for col in df.columns:
                             if 'valor' in col or 'preco' in col:
                                 df[col] = pd.to_numeric(df[col], errors='coerce')
@@ -110,7 +110,7 @@ def processar_planilhas():
                         # Atualizar schema da tabela
                         atualizar_esquema(engine, df)
                         
-                        # Inserir dados
+                        # Inserir dados no BD
                         df.to_sql(
                             name='precos_combustiveis',
                             con=engine,
