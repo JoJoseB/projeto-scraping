@@ -1,6 +1,6 @@
 # Projeto_dat4force
 
-Este repositório contém o projeto para avaliação técnica de candidato para a **Dat4Force**, desenvolvido com foco em automações com Selenium, uso de banco de dados PostgreSQL via Docker e scripts Python. Siga as instruções abaixo para configurar e executar o ambiente de desenvolvimento.
+Este repositório contém o projeto para prática de scraping, desenvolvido com foco em automações com Selenium, uso de banco de dados PostgreSQL via Docker e scripts Python. Siga as instruções abaixo para configurar e executar o ambiente de desenvolvimento.
 
 ---
 ### Pré-requisito
